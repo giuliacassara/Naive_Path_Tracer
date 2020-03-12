@@ -3,7 +3,7 @@
 install it by 
 ` sudo apt-get install -y clang-6.0 lld-6.0 `
 select kit Clang on VScode 
-* disabled embree on CMakelist.txt
+* disabled embree on CMakelists.txt
 # ALL ISSUES 
 1) If compiling with g++ there will be an error with declaration of struct input and instanciation of input input = {} inside yocto_gui. Solutions:
 * Change every reference of variable input like that var_input = {} inside yocto_gui.cpp
@@ -22,7 +22,7 @@ select kit Clang on VScode
 
 # Yocto/Raytrace: Tiny Raytracer
 
-In this homework, you will learn the basic of image synthesis by 
+In this homework, you will learn the basic of image synthesis by
 implementing a simple naive path tracer. In particular, you will
 learn how to 
 
