@@ -14,6 +14,7 @@ add_library(yocto
 set_target_properties(yocto PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
 
 if(UNIX AND NOT APPLE)
+  # target_link_libraries(yocto /usr/lib64/libembree3.so)
   find_package(Threads REQUIRED)
   target_link_libraries(yocto Threads::Threads)
 endif(UNIX AND NOT APPLE)

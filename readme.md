@@ -6,7 +6,13 @@
 2) Missing libraries like Embree of intel and OpenGL. Solutions:
 * Install Embree Linux. Look at this page https://github.com/embree/embree
 * Install OpenGL, followed this tutoria https://medium.com/@theorose49/install-opengl-at-ubuntu-18-04-lts-31f368d0b14e
-* Modify a CMake in Yocto, and a path of the linker from the file .profile on home
+* Modify a CMake in Yocto /out/libs/yocto add the following lines 
+if(UNIX AND NOT APPLE)
+  target_link_libraries(yocto /usr/lib64/libembree3.so)
+  find_package(Threads REQUIRED)
+  # target_link_libraries(yocto Threads::Threads)
+endif(UNIX AND NOT APPLE)
+and a path of the linker from the file .profile on home (not tested yet)
 3) Unable to load scherma scene.schema.json ENOENT: no such file or directory. Solutions:
 
 

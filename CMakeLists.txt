@@ -3,8 +3,8 @@ cmake_minimum_required (VERSION 3.12)
 project (yocto_raytrace VERSION 2.0)
 
 option(YOCTO_OPENGL "Build OpenGL apps" ON)
-option(YOCTO_EMBREE "Use Intel's Embree raytracer" ON)
-option(YOCTO_TESTING "Enable testing" ON)
+option(YOCTO_EMBREE "Use Intel's Embree raytracer" OFF)
+option(YOCTO_TESTING "Enable testing" OFF)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
