@@ -1,0 +1,182 @@
+{
+  "asset": {
+    "copyright": "Model by Fabio Pellacini from github.com/~xelatihy/yocto-gl"
+  },
+  "cameras": {
+    "default": {
+      "lens": 0.05,
+      "aperture": 0.0,
+      "aspect": 2.4,
+      "lookat": [
+        -0.75,
+        0.4,
+        0.9,
+        -0.075,
+        0.05,
+        -0.05,
+        0,
+        1,
+        0
+      ]
+    }
+  },
+  "environments": {
+    "sky": {
+      "emission": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    }
+  },
+  "objects": {
+    "floor": {
+      "shape": "floor",
+      "material": "floor"
+    },
+    "sphere": {
+      "shape": "sphere",
+      "frame": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        -0.4,
+        0,
+        0
+      ],
+      "material": "sphere"
+    },
+    "teapot": {
+      "shape": "teapot",
+      "frame": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0.4,
+        0,
+        0
+      ],
+      "material": "teapot"
+    },
+    "bunny": {
+      "shape": "bunny",
+      "frame": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      "material": "bunny"
+    },
+    "uvcylinder": {
+      "shape": "uvcylinder",
+      "frame": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0.2,
+        0,
+        0
+      ],
+      "material": "uvcylinder"
+    },
+    "cube": {
+      "shape": "cube",
+      "frame": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        -0.2,
+        0,
+        0
+      ],
+      "material": "cube"
+    }
+  },
+  "materials": {
+    "floor": {
+      "color": [
+        0.7,
+        0.7,
+        0.7
+      ]
+    },
+    "sphere": {
+      "specular": 0,
+      "color": [
+        0.7,
+        0.5,
+        0.5
+      ],
+      "roughness": 0.1
+    },
+    "teapot": {
+      "specular": 0,
+      "color": [
+        0.5,
+        0.7,
+        0.5
+      ],
+      "roughness": 0.1
+    },
+    "bunny": {
+      "specular": 0,
+      "color": [
+        0.5,
+        0.5,
+        0.7
+      ],
+      "roughness": 0.1
+    },
+    "uvcylinder": {
+      "specular": 0,
+      "color": [
+        0.5,
+        0.7,
+        0.5
+      ],
+      "roughness": 0.1
+    },
+    "cube": {
+      "specular": 0,
+      "color": [
+        0.7,
+        0.5,
+        0.5
+      ],
+      "roughness": 0.1
+    }
+  }
+}
