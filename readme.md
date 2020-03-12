@@ -1,3 +1,19 @@
+# ALL ISSUES 
+1) If compiling with g++ there will be an error with declaration of struct input and instanciation of input input = {} inside yocto_gui. Solutions:
+* Change every reference of variable input like that var_input = {} inside yocto_gui.cpp
+* compile with CLang (not tested)
+
+2) Missing libraries like Embree of intel and OpenGL. Solutions:
+* Install Embree Linux. Look at this page https://github.com/embree/embree
+* Install OpenGL, followed this tutoria https://medium.com/@theorose49/install-opengl-at-ubuntu-18-04-lts-31f368d0b14e
+* Modify a CMake in Yocto, and a path of the linker from the file .profile on home
+3) Unable to load scherma scene.schema.json ENOENT: no such file or directory. Solutions:
+
+
+
+
+
+
 # Yocto/Raytrace: Tiny Raytracer
 
 In this homework, you will learn the basic of image synthesis by 

@@ -1362,7 +1362,7 @@ static void draw_window(gui::window* win) {
   glClearColor(win->background.x, win->background.y, win->background.z,
       win->background.w);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  if (win->draw_cb) win->draw_cb(win, win->input);
+  if (win->draw_cb) win->draw_cb(win, win->var_input);
   if (win->widgets_cb) {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -1383,7 +1383,7 @@ static void draw_window(gui::window* win) {
                 ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse |
                 ImGuiWindowFlags_NoSavedSettings)) {
       draw_messages(win);
-      win->widgets_cb(win, win->input);
+      win->widgets_cb(win, win->var_input);
     }
     ImGui::End();
     ImGui::Render();
@@ -1425,48 +1425,48 @@ void init_window(gui::window* win, const vec2i& size, const std::string& title,
         if (win->drop_cb) {
           auto pathv = std::vector<std::string>();
           for (auto i = 0; i < num; i++) pathv.push_back(paths[i]);
-          win->drop_cb(win, pathv, win->input);
+          win->drop_cb(win, pathv, win->var_input);
         }
       });
   glfwSetKeyCallback(win->win,
       [](GLFWwindow* glfw, int key, int scancode, int action, int mods) {
         auto win = (gui::window*)glfwGetWindowUserPointer(glfw);
-        if (win->key_cb) win->key_cb(win, key, (bool)action, win->input);
+        if (win->key_cb) win->key_cb(win, key, (bool)action, win->var_input);
       });
   glfwSetCharCallback(win->win, [](GLFWwindow* glfw, unsigned int key) {
     auto win = (gui::window*)glfwGetWindowUserPointer(glfw);
-    if (win->char_cb) win->char_cb(win, key, win->input);
+    if (win->char_cb) win->char_cb(win, key, win->var_input);
   });
   glfwSetMouseButtonCallback(
       win->win, [](GLFWwindow* glfw, int button, int action, int mods) {
         auto win = (gui::window*)glfwGetWindowUserPointer(glfw);
         if (win->click_cb)
           win->click_cb(
-              win, button == GLFW_MOUSE_BUTTON_LEFT, (bool)action, win->input);
+              win, button == GLFW_MOUSE_BUTTON_LEFT, (bool)action, win->var_input);
       });
   glfwSetScrollCallback(
       win->win, [](GLFWwindow* glfw, double xoffset, double yoffset) {
         auto win = (gui::window*)glfwGetWindowUserPointer(glfw);
-        if (win->scroll_cb) win->scroll_cb(win, (float)yoffset, win->input);
+        if (win->scroll_cb) win->scroll_cb(win, (float)yoffset, win->var_input);
       });
   glfwSetWindowSizeCallback(
       win->win, [](GLFWwindow* glfw, int width, int height) {
         auto win = (gui::window*)glfwGetWindowUserPointer(glfw);
         glfwGetWindowSize(
-            win->win, &win->input.window_size.x, &win->input.window_size.y);
-        if (win->widgets_width) win->input.window_size.x -= win->widgets_width;
-        glfwGetFramebufferSize(win->win, &win->input.framebuffer_viewport.z,
-            &win->input.framebuffer_viewport.w);
-        win->input.framebuffer_viewport.x = 0;
-        win->input.framebuffer_viewport.y = 0;
+            win->win, &win->var_input.window_size.x, &win->var_input.window_size.y);
+        if (win->widgets_width) win->var_input.window_size.x -= win->widgets_width;
+        glfwGetFramebufferSize(win->win, &win->var_input.framebuffer_viewport.z,
+            &win->var_input.framebuffer_viewport.w);
+        win->var_input.framebuffer_viewport.x = 0;
+        win->var_input.framebuffer_viewport.y = 0;
         if (win->widgets_width) {
           auto win_size = zero2i;
           glfwGetWindowSize(win->win, &win_size.x, &win_size.y);
           auto offset = (int)(win->widgets_width *
-                              (float)win->input.framebuffer_viewport.z /
+                              (float)win->var_input.framebuffer_viewport.z /
                               win_size.x);
-          win->input.framebuffer_viewport.z -= offset;
-          if (win->widgets_left) win->input.framebuffer_viewport.x += offset;
+          win->var_input.framebuffer_viewport.z -= offset;
+          if (win->widgets_left) win->var_input.framebuffer_viewport.x += offset;
         }
       });
 
@@ -1501,61 +1501,61 @@ void clear_window(gui::window* win) {
 void run_ui(gui::window* win) {
   while (!glfwWindowShouldClose(win->win)) {
     // update input
-    win->input.mouse_last = win->input.mouse_pos;
+    win->var_input.mouse_last = win->var_input.mouse_pos;
     auto mouse_posx = 0.0, mouse_posy = 0.0;
     glfwGetCursorPos(win->win, &mouse_posx, &mouse_posy);
-    win->input.mouse_pos = vec2f{(float)mouse_posx, (float)mouse_posy};
+    win->var_input.mouse_pos = vec2f{(float)mouse_posx, (float)mouse_posy};
     if (win->widgets_width && win->widgets_left)
-      win->input.mouse_pos.x -= win->widgets_width;
-    win->input.mouse_left = glfwGetMouseButton(
+      win->var_input.mouse_pos.x -= win->widgets_width;
+    win->var_input.mouse_left = glfwGetMouseButton(
                                 win->win, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
-    win->input.mouse_right =
+    win->var_input.mouse_right =
         glfwGetMouseButton(win->win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
-    win->input.modifier_alt =
+    win->var_input.modifier_alt =
         glfwGetKey(win->win, GLFW_KEY_LEFT_ALT) == GLFW_PRESS ||
         glfwGetKey(win->win, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS;
-    win->input.modifier_shift =
+    win->var_input.modifier_shift =
         glfwGetKey(win->win, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
         glfwGetKey(win->win, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS;
-    win->input.modifier_ctrl =
+    win->var_input.modifier_ctrl =
         glfwGetKey(win->win, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
         glfwGetKey(win->win, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS;
     glfwGetWindowSize(
-        win->win, &win->input.window_size.x, &win->input.window_size.y);
-    if (win->widgets_width) win->input.window_size.x -= win->widgets_width;
-    glfwGetFramebufferSize(win->win, &win->input.framebuffer_viewport.z,
-        &win->input.framebuffer_viewport.w);
-    win->input.framebuffer_viewport.x = 0;
-    win->input.framebuffer_viewport.y = 0;
+        win->win, &win->var_input.window_size.x, &win->var_input.window_size.y);
+    if (win->widgets_width) win->var_input.window_size.x -= win->widgets_width;
+    glfwGetFramebufferSize(win->win, &win->var_input.framebuffer_viewport.z,
+        &win->var_input.framebuffer_viewport.w);
+    win->var_input.framebuffer_viewport.x = 0;
+    win->var_input.framebuffer_viewport.y = 0;
     if (win->widgets_width) {
       auto win_size = zero2i;
       glfwGetWindowSize(win->win, &win_size.x, &win_size.y);
       auto offset = (int)(win->widgets_width *
-                          (float)win->input.framebuffer_viewport.z /
+                          (float)win->var_input.framebuffer_viewport.z /
                           win_size.x);
-      win->input.framebuffer_viewport.z -= offset;
-      if (win->widgets_left) win->input.framebuffer_viewport.x += offset;
+      win->var_input.framebuffer_viewport.z -= offset;
+      if (win->widgets_left) win->var_input.framebuffer_viewport.x += offset;
     }
     if (win->widgets_width) {
       auto io                   = &ImGui::GetIO();
-      win->input.widgets_active = io->WantTextInput || io->WantCaptureMouse ||
+      win->var_input.widgets_active = io->WantTextInput || io->WantCaptureMouse ||
                                   io->WantCaptureKeyboard;
     }
 
     // time
-    win->input.clock_last = win->input.clock_now;
-    win->input.clock_now =
+    win->var_input.clock_last = win->var_input.clock_now;
+    win->var_input.clock_now =
         std::chrono::high_resolution_clock::now().time_since_epoch().count();
-    win->input.time_now = (double)win->input.clock_now / 1000000000.0;
-    win->input.time_delta =
-        (double)(win->input.clock_now - win->input.clock_last) / 1000000000.0;
+    win->var_input.time_now = (double)win->var_input.clock_now / 1000000000.0;
+    win->var_input.time_delta =
+        (double)(win->var_input.clock_now - win->var_input.clock_last) / 1000000000.0;
 
     // update ui
-    if (win->uiupdate_cb && !win->input.widgets_active)
-      win->uiupdate_cb(win, win->input);
+    if (win->uiupdate_cb && !win->var_input.widgets_active)
+      win->uiupdate_cb(win, win->var_input);
 
     // update
-    if (win->update_cb) win->update_cb(win, win->input);
+    if (win->update_cb) win->update_cb(win, win->var_input);
 
     // draw
     draw_window(win);
