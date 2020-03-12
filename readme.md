@@ -1,3 +1,9 @@
+# Using Clang
+No issues in compiling: 
+install it by 
+` sudo apt-get install -y clang-6.0 lld-6.0 `
+select kit Clang on VScode 
+
 # ALL ISSUES 
 1) If compiling with g++ there will be an error with declaration of struct input and instanciation of input input = {} inside yocto_gui. Solutions:
 * Change every reference of variable input like that var_input = {} inside yocto_gui.cpp
