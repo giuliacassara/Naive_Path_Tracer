@@ -1,3 +1,9 @@
+# sample_trace branch:
+* Tryed to compile `  sample_trace() function ` but :
+ 	FEW ERRORS , (but maybe it's the right way)
+* updatade code on ` static ray3f eval_camera `
+	see code.
+
 # Using Clang
 * No issues in compiling: 
 install it by 
