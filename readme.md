@@ -1,3 +1,15 @@
+# sample_trace branch:
+* Tryed to compile `  sample_trace() function ` but :
+ 	FEW ERRORS , (but maybe it's the right way)
+* updatade code on ` static ray3f eval_camera `
+	see code.
+
+# Using Clang
+* No issues in compiling: 
+install it by 
+` sudo apt-get install -y clang-6.0 lld-6.0 `
+select kit Clang on VScode 
+* disabled embree on CMakelists.txt
 # ALL ISSUES 
 1) If compiling with g++ there will be an error with declaration of struct input and instanciation of input input = {} inside yocto_gui. Solutions:
 * Change every reference of variable input like that var_input = {} inside yocto_gui.cpp
@@ -22,7 +34,7 @@ and a path of the linker from the file .profile on home (not tested yet)
 
 # Yocto/Raytrace: Tiny Raytracer
 
-In this homework, you will learn the basic of image synthesis by 
+In this homework, you will learn the basic of image synthesis by
 implementing a simple naive path tracer. In particular, you will
 learn how to 
 
