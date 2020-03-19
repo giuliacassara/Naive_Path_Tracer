@@ -138,14 +138,12 @@ static float eval_texturef(const rtr::texture* texture, const vec2f& uv,
 // Generates a ray from a camera for yimg::image plane coordinate uv and
 // the lens coordinates luv.
 static ray3f eval_camera(const rtr::camera* camera, const vec2f& image_uv) {
-  // YOUR CODE GOES HERE
-  auto q = vec3f{camera->film.x * (0.5 - image_uv.x),
-  camera->film.y * (image_uv.y - 0.5), camera->lens};
-  auto e = vec3f{0}; auto d = normalize(-q - e);
-  return ray3f{transform_point(camera->frame, e),
-  transform_direction(camera->frame, d)};
-  // evaluate the camera ray as per slides
-  return ray3f{};
+    auto q = vec3f{static_cast<float>(camera->film.x * (0.5 - image_uv.x)),
+                   static_cast<float>(camera->film.y * (image_uv.y - 0.5)), camera->lens};
+    auto e = vec3f{0};
+    auto d = normalize(-q - e);
+    return ray3f{transform_point(camera->frame, e),
+                 transform_direction(camera->frame, d)};
 }
 
 // Eval position
@@ -635,8 +633,15 @@ static vec4f trace_texcoord(const rtr::scene* scene, const ray3f& ray,
 static vec4f trace_color(const rtr::scene* scene, const ray3f& ray, int bounce,
     rng_state& rng, const trace_params& params) {
   // YOUR CODE GOES HERE
-  // intersect next point
-
+  auto isec = intersection3f{};// intersect next point
+  auto try_isec = intersect_scene_bvh(scene, ray, &isec);
+  if(!try_isec.hit){
+      return {zero3f,1};
+  }
+  else{
+      auto object = scene->objects[try_isec.object];
+      return {object->material->color,1};
+  }
   // prepare shading point
 
   // return color
@@ -721,60 +726,56 @@ inline void parallel_for(
   for (auto& f : futures) f.get();
 }
 
-// Progressively compute an image by calling trace_samples multiple times.
- trace_samples(rtr::state* state, const rtr::scene* scene,
+// Progressively compute an image by calling samples multiple times.
+void trace_samples(rtr::state* state, const rtr::scene* scene,
     const rtr::camera* camera, const trace_params& params) {
   // get current shader
   auto shader = get_trace_shader_func(params);
-  
-  //set image width and height
-  auto image_width = state->pixels.size()[0];
-  auto image_height = state->pixels.size()[1];
+  //get images sizes
+  auto img_width = state->pixels.size()[0];
+  auto img_height = state->pixels.size()[1];
+  auto img_size = state->pixels.size();
+  auto imeji = image(img_size, vec3i {0, 0, 0});
 
-  auto cframe = camera->frame;
-  auto clens = camera->lens;
-  auto cfilm = camera->film;
-  // auto acc[];
-  auto rngs = make_rng(params.seed);
   // check if we run in parallel or not
   if (params.noparallel) {
-    // loop over image pixels
-    for (auto j = 0;  j < image_height; j++){
-      for (auto i = 0;  i < image_width; i++){
-         // get pixel uv from rng
-        auto puv = rand2f(rngs{i,j});
-        auto uv = (vec2f{i,j} + puv) / state->pixels.size;
-        // get camera ray
-        auto ray = eval_camera(camera , uv);
-        // call shader
-        auto shader = get_trace_shader_func(params);
-        //update state accumulation
-        acc[i,j] += shader(scene, ray, rngs{i,j});
-        // no IDEA to do..
-        // clamp to max value
-        // update state accumulation, samples and render
+      // progressive with ns samples per pixel
+      //struct img {width& };
+      auto rngs = make_rng(params.seed);
+      auto acc = image{img_size, zero3f};
+      for(auto s : range(params.samples)) {
+          int j;
+          int i;
+          for(auto j : range(img_height)) {                  // loop over image pixels
+              for(auto i : range(img_width)) {
+                  auto puv = rand2f(rngs);              // get pixel uv from rng
+                  auto uv = (vec2f{static_cast<float>(i),static_cast<float>(j)} + puv) / (img_width*img_height);
+                  auto ray = eval_camera(camera, uv);            // get camera ray
+                  acc[i][j] += shader(scene, ray, 4, rngs, params)[1];         // call shader
+                  imeji[i][j] <- (acc[i][j] / (s + 1));             // update state accumulation, samples and render
+              }
+          }
+        // can view or save image here
       }
-    }
-    
-  
+
+
+        // clamp to max value
+
   } else {
     parallel_for(
         state->render.size(), [state, scene, camera, &params](const vec2i& ij) {
           // copy here the body of the above loop
-
-        }
-      }
         });
   }
 }
-/*
+
 void trace_samples(rtr::state* state, const rtr::scene* scene,
     const rtr::camera* camera, const trace_params& params,
     std::atomic<bool>* stop) {
   // If you want, you can implement it here and make it stop when the stop flag is set
   return trace_samples(state, scene, camera, params);
 }
-*/
+
 }  // namespace yocto::raytrace
 
 // -----------------------------------------------------------------------------

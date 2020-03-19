@@ -70,6 +70,7 @@
 
 #include <yocto/yocto_image.h>
 #include <yocto/yocto_math.h>
+#include <yocto/yocto_common.h>
 
 #include <atomic>
 #include <future>
@@ -83,6 +84,10 @@ namespace yocto::raytrace {
 // Namespace aliases
 namespace rtr = yocto::raytrace;
 namespace img = yocto::image;
+namespace common = yocto::common;
+
+using common::range;
+using image::image;
 
 // Math defitions
 using math::bbox3f;
@@ -100,6 +105,10 @@ using math::vec4f;
 using math::vec4i;
 using math::zero2f;
 using math::zero3f;
+using math::rand2f;
+using math::transform_point;
+using math::transform_direction;
+using math::make_rng;
 
 }  // namespace yocto::raytrace
 
