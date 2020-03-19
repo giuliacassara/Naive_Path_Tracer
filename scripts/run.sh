@@ -1,5 +1,5 @@
-./bin/yscenetrace tests/02_matte/matte.json -o out/lowres/0x_color_720_9.jpg -s 9 -t color -r 720
-#./bin/yscenetrace tests/02_matte/matte.json -o out/lowres/0x_normal_720_9.jpg -s 9 -t normal -r 720
+#./bin/yscenetrace tests/02_matte/matte.json -o out/lowres/0x_color_720_9.jpg -s 9 -t color -r 720
+./bin/yscenetrace tests/02_matte/matte.json -o out/lowres/0x_normal_720_9.jpg -s 9 -t normal -r 720
 #./bin/yscenetrace tests/02_matte/matte.json -o out/lowres/0x_texcoord_720_9.jpg -s 9 -t texcoord -r 720
 #./bin/yscenetrace tests/02_matte/matte.json -o out/lowres/0x_eyelight_720_9.jpg -s 9 -t eyelight -r 720
 

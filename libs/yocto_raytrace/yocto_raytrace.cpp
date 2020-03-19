@@ -612,12 +612,19 @@ static vec4f trace_normal(const rtr::scene* scene, const ray3f& ray, int bounce,
     rng_state& rng, const trace_params& params) {
   // YOUR CODE GOES HERE
   // intersect next point
-  //intersect_scene_bvh()
   // prepare shading point
+  auto isec = intersect_scene_bvh(scene, ray, false, true );
+  //auto isec = intersect_scene_bvh(scene, ray, false, true );
+  if(!isec.hit)
+    return {zero4f};
+  // prepare shading point
+  auto object = scene->objects[isec.object];
+  auto normal = yocto::math::transform_direction(object->frame, eval_normal(object->shape, isec.element, isec.uv));
+  // return color
 
+  return {normal * 0.5 + 0.5, 1};
   // return normal as color
   //return {zero3f, 1};
-  return{1,1,1,1};
 }
 
 static vec4f trace_texcoord(const rtr::scene* scene, const ray3f& ray,
