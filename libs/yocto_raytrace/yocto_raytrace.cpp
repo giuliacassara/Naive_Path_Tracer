@@ -26,7 +26,9 @@
 // SOFTWARE.
 //
 
+#include <iostream>
 #include "yocto_raytrace.h"
+#include "../yocto/yocto_common.h"
 
 #include <atomic>
 #include <deque>
@@ -34,6 +36,7 @@
 #include <memory>
 #include <mutex>
 using namespace std::string_literals;
+//using namespace yocto::image;
 
 // -----------------------------------------------------------------------------
 // MATH FUNCTIONS
@@ -139,11 +142,6 @@ static float eval_texturef(const rtr::texture* texture, const vec2f& uv,
 // the lens coordinates luv.
 static ray3f eval_camera(const rtr::camera* camera, const vec2f& image_uv) {
   // YOUR CODE GOES HERE
-  auto q = vec3f{camera->film.x * (0.5 - image_uv.x),
-  camera->film.y * (image_uv.y - 0.5), camera->lens};
-  auto e = vec3f{0}; auto d = normalize(-q - e);
-  return ray3f{transform_point(camera->frame, e),
-  transform_direction(camera->frame, d)};
   // evaluate the camera ray as per slides
   return ray3f{};
 }
@@ -614,11 +612,12 @@ static vec4f trace_normal(const rtr::scene* scene, const ray3f& ray, int bounce,
     rng_state& rng, const trace_params& params) {
   // YOUR CODE GOES HERE
   // intersect next point
-
+  //intersect_scene_bvh()
   // prepare shading point
 
   // return normal as color
-  return {zero3f, 1};
+  //return {zero3f, 1};
+  return{1,1,1,1};
 }
 
 static vec4f trace_texcoord(const rtr::scene* scene, const ray3f& ray,
@@ -636,11 +635,15 @@ static vec4f trace_color(const rtr::scene* scene, const ray3f& ray, int bounce,
     rng_state& rng, const trace_params& params) {
   // YOUR CODE GOES HERE
   // intersect next point
-
+  auto isec = intersect_scene_bvh(scene, ray, false, true );
+  //auto isec = intersect_scene_bvh(scene, ray, false, true );
+  if(!isec.hit)
+    return {zero4f};
   // prepare shading point
-
+  auto object = scene->objects[isec.object];
   // return color
-  return {zero3f, 1};
+
+  return {object->material->color, 1};
 }
 
 // Trace a single ray from the camera using the given algorithm.
@@ -720,61 +723,71 @@ inline void parallel_for(
   }
   for (auto& f : futures) f.get();
 }
+// 1 --> MAIN RENDERING LOOP 
 
 // Progressively compute an image by calling trace_samples multiple times.
- trace_samples(rtr::state* state, const rtr::scene* scene,
+void trace_samples(rtr::state* state, const rtr::scene* scene,
     const rtr::camera* camera, const trace_params& params) {
   // get current shader
   auto shader = get_trace_shader_func(params);
-  
-  //set image width and height
-  auto image_width = state->pixels.size()[0];
-  auto image_height = state->pixels.size()[1];
+  auto img_width = state->pixels.size()[0];
+  auto img_height = state->pixels.size()[1];
+  auto img_size = state->pixels.size();
 
-  auto cframe = camera->frame;
-  auto clens = camera->lens;
-  auto cfilm = camera->film;
   // auto acc[];
   auto rngs = make_rng(params.seed);
   // check if we run in parallel or not
   if (params.noparallel) {
+        cli:printf("HELLO NON PARALLEL");
+
     // loop over image pixels
-    for (auto j = 0;  j < image_height; j++){
-      for (auto i = 0;  i < image_width; i++){
-         // get pixel uv from rng
-        auto puv = rand2f(rngs{i,j});
-        auto uv = (vec2f{i,j} + puv) / state->pixels.size;
-        // get camera ray
-        auto ray = eval_camera(camera , uv);
-        // call shader
-        auto shader = get_trace_shader_func(params);
-        //update state accumulation
-        acc[i,j] += shader(scene, ray, rngs{i,j});
-        // no IDEA to do..
-        // clamp to max value
-        // update state accumulation, samples and render
-      }
-    }
+    for(auto j : yocto::common::range(img_height)) {
+          for(auto i : yocto::common::range(img_width)) {
+            auto rngs = make_rng(params.seed);
+            auto puv = rand2f(rngs);
+            auto uv = (vec2f(i ,j) + puv) / vec2f(img_size);
+            auto ray = camera_ray(camera->frame, camera->lens, camera->film, uv);
+            auto shader_raw = clamp(shader(scene, ray, 0, state->pixels[i,j].rng, params), 0, params.clamp);
+            //printf("[%l %l]:  %d\n", i,j,shader_raw.x);
+            state->pixels[i,j].accumulated += shader_raw;
+            state->pixels[i,j].samples += 1;
+            state->render[i,j] = state->pixels[i,j].accumulated/(state->pixels[i,j].samples );
+            }
+          }
     
   
   } else {
+    
     parallel_for(
         state->render.size(), [state, scene, camera, &params](const vec2i& ij) {
           // copy here the body of the above loop
-
-        }
-      }
+          //cli:printf("HELLO PARALLEL");
+          auto shader = get_trace_shader_func(params);
+          auto img_width = state->pixels.size()[0];
+          auto img_height = state->pixels.size()[1];
+          auto img_size = state->pixels.size();
+          auto rngs = make_rng(params.seed);
+          auto puv = rand2f(rngs);
+          auto uv = (vec2f(ij) + puv) / vec2f(img_size);
+          auto ray = camera_ray(camera->frame, camera->lens, camera->film, uv);
+          auto shader_raw = clamp(shader(scene, ray, 0, state->pixels[ij].rng, params), 0, params.clamp);
+          //printf("[%l %l]:  %d\n", i,j,shader_raw.x);
+          state->pixels[ij].accumulated += shader_raw;
+          state->pixels[ij].samples += 1;
+          state->render[ij] = state->pixels[ij].accumulated/(state->pixels[ij].samples );
         });
   }
 }
-/*
+
 void trace_samples(rtr::state* state, const rtr::scene* scene,
     const rtr::camera* camera, const trace_params& params,
     std::atomic<bool>* stop) {
   // If you want, you can implement it here and make it stop when the stop flag is set
   return trace_samples(state, scene, camera, params);
 }
-*/
+
+
+
 }  // namespace yocto::raytrace
 
 // -----------------------------------------------------------------------------

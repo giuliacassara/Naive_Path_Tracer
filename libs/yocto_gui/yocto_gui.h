@@ -442,7 +442,7 @@ struct window {
   uiupdate_callback uiupdate_cb   = {};
   int               widgets_width = 0;
   bool              widgets_left  = true;
-  input             var_input     = {};
+  input             input         = {};
   vec4f             background    = {0.15f, 0.15f, 0.15f, 1.0f};
 };
 
