@@ -87,7 +87,7 @@ namespace img = yocto::image;
 namespace common = yocto::common;
 
 using common::range;
-using image::image;
+
 
 // Math defitions
 using math::bbox3f;
@@ -109,6 +109,12 @@ using math::rand2f;
 using math::transform_point;
 using math::transform_direction;
 using math::make_rng;
+using math::camera_ray;
+using math::normalize;
+using math::interpolate_triangle;
+using math::interpolate_quad;
+using math::inverse;
+using math::pi;
 
 }  // namespace yocto::raytrace
 
